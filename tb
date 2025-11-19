@@ -1,0 +1,61 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity tb_NCO_wrapper is
+end tb_NCO_wrapper;
+
+architecture tb of tb_NCO_wrapper is
+
+    -- Signals for DUT
+    signal reset          : std_logic := '1';
+    signal sys_clock      : std_logic := '0';
+    signal usb_uart_rxd   : std_logic := '1';   -- idle UART
+    signal usb_uart_txd   : std_logic;
+    signal dac_cs_n_0     : std_logic;
+    signal dac_sck_0      : std_logic;
+    signal dac_sdi_0      : std_logic;
+
+begin
+
+    --------------------------------------------------------------------
+    -- Instantiate DUT
+    --------------------------------------------------------------------
+    uut: entity work.NCO_wrapper
+    port map (
+        dac_cs_n_0   => dac_cs_n_0,
+        dac_sck_0    => dac_sck_0,
+        dac_sdi_0    => dac_sdi_0,
+        reset        => reset,
+        sys_clock    => sys_clock,
+        usb_uart_rxd => usb_uart_rxd,
+        usb_uart_txd => usb_uart_txd
+    );
+
+    --------------------------------------------------------------------
+    -- Clock generator (100 MHz = 10 ns period)
+    --------------------------------------------------------------------
+    clk_gen : process
+    begin
+        sys_clock <= '0';
+        wait for 50 ns;
+        sys_clock <= '1';
+        wait for 50 ns;
+    end process;
+
+    --------------------------------------------------------------------
+    -- Reset pulse
+    --------------------------------------------------------------------
+    reset_gen : process
+    begin
+        reset <= '0';
+        wait for 100 ns;
+        reset <= '1';
+        wait;
+    end process;
+
+    --------------------------------------------------------------------
+    -- Option: Send UART data to CPU (if needed)
+    -- Hi?n t?i ?? ? m?c '1' (idle)
+    --------------------------------------------------------------------
+
+end tb;
