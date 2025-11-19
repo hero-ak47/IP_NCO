@@ -1,0 +1,53 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity NCO_LOGIC is
+    Port(
+        clk        : in  std_logic;
+        rst_n      : in  std_logic;                       -- active low reset
+        freq_word  : in  std_logic_vector(31 downto 0);   -- tuning word
+        sin_out    : out std_logic_vector(11 downto 0)    -- 12-bit unsigned sine
+    );
+end NCO_LOGIC;
+
+architecture Behavioral of NCO_LOGIC is
+
+    -- 32-bit phase accumulator
+    signal phase_acc : unsigned(31 downto 0) := (others => '0');
+
+    -- LUT address l?y 10 bit cao c?a phase_acc (1024 samples)
+    signal lut_addr  : unsigned(8 downto 0);
+
+    -- data t? LUT (12 bit unsigned)
+    signal lut_data  : unsigned(11 downto 0);
+
+begin
+
+    ----------------------------------------
+    -- Phase accumulator
+    ----------------------------------------
+    process(clk, rst_n)
+    begin
+        if rst_n = '0' then                     -- reset active low
+            phase_acc <= (others => '0');
+        elsif rising_edge(clk) then
+            phase_acc <= phase_acc + unsigned(freq_word);
+        end if;
+    end process;
+
+    -- l?y 10 bit MSB ?? ??a ch? LUT
+    lut_addr <= phase_acc(31 downto 23);
+
+    ----------------------------------------
+    -- Instantiate LUT
+    ----------------------------------------
+    sin_lut_inst : entity work.LUT
+        port map (
+            addr => std_logic_vector(lut_addr),
+            data => lut_data
+        );
+
+    sin_out <= std_logic_vector(lut_data);
+
+end Behavioral;
