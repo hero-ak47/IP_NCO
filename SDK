@@ -13,7 +13,7 @@ uint32_t calc_freq_word(double fout)
 
 int main()
 {
-	uint32_t target_freq = 50000;   // muốn tạo 1 kHz
+	uint32_t target_freq = 1000;   // muốn tạo 1 kHz
     uint32_t freq_word = calc_freq_word(target_freq);
 
     xil_printf("Freq_word = %d\r\n", freq_word);
